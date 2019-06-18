@@ -415,7 +415,9 @@ func (s *Stream) Read(p []byte) (n int, err error) {
 	if er := s.trReader.(*transportReader).er; er != nil {
 		return 0, er
 	}
+	fmt.Println("before transport-Read")
 	s.requestRead(len(p))
+	fmt.Println("after transport-Read")
 	return io.ReadFull(s.trReader, p)
 }
 
