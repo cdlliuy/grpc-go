@@ -21,6 +21,7 @@ package grpc
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"math"
 	"strconv"
@@ -709,12 +710,17 @@ func (cs *clientStream) SendMsg(m interface{}) (err error) {
 func (cs *clientStream) RecvMsg(m interface{}) error {
 	if cs.binlog != nil && !cs.serverHeaderBinlogged {
 		// Call Header() to binary log header if it's not already logged.
+		fmt.Println("before grpc header")
 		cs.Header()
+		fmt.Println("after grpc header")
+
 	}
 	var recvInfo *payloadInfo
 	if cs.binlog != nil {
 		recvInfo = &payloadInfo{}
 	}
+	fmt.Println("before grpc withRetry-recvMsg")
+
 	err := cs.withRetry(func(a *csAttempt) error {
 		return a.recvMsg(m, recvInfo)
 	}, cs.commitAttemptLocked)
@@ -724,6 +730,7 @@ func (cs *clientStream) RecvMsg(m interface{}) error {
 			Message:      recvInfo.uncompressedBytes,
 		})
 	}
+	fmt.Println("after grpc withRetry-recvMsg")
 	if err != nil || !cs.desc.ServerStreams {
 		// err != nil or non-server-streaming indicates end of stream.
 		cs.finish(err)
@@ -865,7 +872,10 @@ func (a *csAttempt) recvMsg(m interface{}, payInfo *payloadInfo) (err error) {
 		// Only initialize this state once per stream.
 		a.decompSet = true
 	}
+
+	fmt.Println("before grpc withRetry-recvMsg-recv")
 	err = recv(a.p, cs.codec, a.s, a.dc, m, *cs.callInfo.maxReceiveMessageSize, payInfo, a.decomp)
+	fmt.Println("after grpc withRetry-recvMsg-recv")
 	if err != nil {
 		if err == io.EOF {
 			if statusErr := a.s.Status().Err(); statusErr != nil {
