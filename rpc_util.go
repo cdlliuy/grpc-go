@@ -647,9 +647,11 @@ func recvAndDecompress(p *parser, s *transport.Stream, dc Decompressor, maxRecei
 		payInfo.wireLength = len(d)
 	}
 
+	fmt.Println("before grpc withRetry-recvMsg-recv-recvAndDecompress-checkpayload")
 	if st := checkRecvPayload(pf, s.RecvCompress(), compressor != nil || dc != nil); st != nil {
 		return nil, st.Err()
 	}
+	fmt.Println("after grpc withRetry-recvMsg-recv-recvAndDecompress-checkpayload")
 
 	if pf == compressionMade {
 		// To match legacy behavior, if the decompressor is set by WithDecompressor or RPCDecompressor,
