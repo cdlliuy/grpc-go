@@ -505,10 +505,11 @@ type parser struct {
 // that the underlying io.Reader must not return an incompatible
 // error.
 func (p *parser) recvMsg(maxReceiveMessageSize int) (pf payloadFormat, msg []byte, err error) {
+	fmt.Println("before grpc withRetry-recvMsg-recv-recvAndDecompress-recvMsg-read")
 	if _, err := p.r.Read(p.header[:]); err != nil {
 		return 0, nil, err
 	}
-
+	fmt.Println("after grpc withRetry-recvMsg-recv-recvAndDecompress-recvMsg-read")
 	pf = payloadFormat(p.header[0])
 	length := binary.BigEndian.Uint32(p.header[1:])
 
@@ -636,7 +637,9 @@ type payloadInfo struct {
 }
 
 func recvAndDecompress(p *parser, s *transport.Stream, dc Decompressor, maxReceiveMessageSize int, payInfo *payloadInfo, compressor encoding.Compressor) ([]byte, error) {
+	fmt.Println("before grpc withRetry-recvMsg-recv-recvAndDecompress-recvMsg")
 	pf, d, err := p.recvMsg(maxReceiveMessageSize)
+	fmt.Println("after grpc withRetry-recvMsg-recv-recvAndDecompress-recvMsg")
 	if err != nil {
 		return nil, err
 	}
