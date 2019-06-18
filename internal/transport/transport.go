@@ -417,8 +417,10 @@ func (s *Stream) Read(p []byte) (n int, err error) {
 	}
 	fmt.Println("before transport-Read")
 	s.requestRead(len(p))
+	yingn, yingerr := io.ReadFull(s.trReader, p)
 	fmt.Println("after transport-Read")
-	return io.ReadFull(s.trReader, p)
+	return yingn, yingerr
+
 }
 
 // tranportReader reads all the data available for this Stream from the transport and
@@ -434,7 +436,9 @@ type transportReader struct {
 }
 
 func (t *transportReader) Read(p []byte) (n int, err error) {
+	fmt.Println("before transportReader-read ")
 	n, err = t.reader.Read(p)
+	fmt.Println("after transportReader-read ")
 	if err != nil {
 		t.er = err
 		return
