@@ -777,6 +777,7 @@ func (t *http2Client) Close() error {
 	}
 	// Notify all active streams.
 	for _, s := range streams {
+		fmt.Println("httpclient, Close -> closing")
 		t.closeStream(s, ErrConnClosing, false, http2.ErrCodeNo, status.New(codes.Unavailable, ErrConnClosing.Desc), nil, false)
 	}
 	if t.statsHandler != nil {

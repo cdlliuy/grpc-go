@@ -318,6 +318,7 @@ func (c *controlBuffer) get(block bool) (interface{}, error) {
 		case <-c.ch:
 		case <-c.done:
 			c.finish()
+			fmt.Println("controlbuf, c.done -> closing")
 			return nil, ErrConnClosing
 		}
 	}
@@ -329,6 +330,7 @@ func (c *controlBuffer) finish() {
 		c.mu.Unlock()
 		return
 	}
+	fmt.Println("controlbuf, finish -> closing")
 	c.err = ErrConnClosing
 	// There may be headers for streams in the control buffer.
 	// These streams need to be cleaned out since the transport
@@ -664,6 +666,7 @@ func (l *loopyWriter) cleanupStreamHandler(c *cleanupStream) error {
 		}
 	}
 	if l.side == clientSide && l.draining && len(l.estdStreams) == 0 {
+		fmt.Println("controlbuf, cleanupStreamHanlder -> closing")
 		return ErrConnClosing
 	}
 	return nil
@@ -673,6 +676,7 @@ func (l *loopyWriter) incomingGoAwayHandler(*incomingGoAway) error {
 	if l.side == clientSide {
 		l.draining = true
 		if len(l.estdStreams) == 0 {
+			fmt.Println("controlbuf, incomingGoAwayHandler -> closing")
 			return ErrConnClosing
 		}
 	}
